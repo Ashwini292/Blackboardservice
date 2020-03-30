@@ -3,6 +3,12 @@ package com.csye6225.spring2020.courseservice.datamodel;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+
+@DynamoDBTable(tableName="Department")
 @XmlRootElement
 public class Department {
 	String deptName;
@@ -19,6 +25,7 @@ public class Department {
 		this.numofstudents=numofstudents;
 	}
 	
+	@DynamoDBAttribute(attributeName="numofstudents")
 	@XmlElement(name="numofstudents")
 	public int getNumofstudents() {
 		return numofstudents;
@@ -27,7 +34,8 @@ public class Department {
 	public void setNumofstudents(int numofstudents) {
 		this.numofstudents = numofstudents;
 	}
-
+	
+	@DynamoDBAttribute(attributeName="deptName")
 	@XmlElement(name="deptName")
 	public String getDeptName() {
 		return deptName;
@@ -37,6 +45,7 @@ public class Department {
 		this.deptName=deptName;
 	}
 	
+	@DynamoDBHashKey(attributeName="deptId")
 	@XmlElement(name="deptId")
 	public int getDeptId() {
 		return deptId;
@@ -46,6 +55,7 @@ public class Department {
 		this.deptId=deptId;
 	}
 	
+	@DynamoDBIgnore
 	@Override
 	public String toString() {
 		return "deptName=" + getDeptName() + ", deptId=" + getDeptId()+", numofstudents="+getNumofstudents();

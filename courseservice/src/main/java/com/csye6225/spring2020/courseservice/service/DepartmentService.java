@@ -6,43 +6,42 @@ import java.util.List;
 
 import com.csye6225.spring2020.courseservice.datamodel.InMemoryDatabase;
 import com.csye6225.spring2020.courseservice.datamodel.Professor;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.csye6225.spring2020.courseservice.datamodel.Department;
+import com.csye6225.spring2020.courseservice.datamodel.DynamoDbConnector;
 
 public class DepartmentService {
-static HashMap<Integer, Department> dept_Map = InMemoryDatabase.getDepartmentDB();
+	static DynamoDbConnector dynamodb;
+	DynamoDBMapper mapper;
+	DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 	
 	public DepartmentService() {
+		dynamodb = new DynamoDbConnector();
+		dynamodb.init();
+		mapper = new DynamoDBMapper(dynamodb.getClient());
 	}
 	
-	// Getting a list of all department 
-	// GET "..webapi/departments"
+
 	public List<Department> getAllDepartments() {	
 		//Getting the list
-		ArrayList<Department> list = new ArrayList<>();
-		for (Department dept : dept_Map.values()) {
-			list.add(dept);
-		}
+		List<Department> list = mapper.scan(Department.class, scanExpression);
 		return list ;
 	}
 
 	// Adding a department
 	public Department addDepartment(String deptName, int deptId, int numofstudents) {
-		// Next Id 
-		long nextAvailableId = dept_Map.size() + 1;
-		
-		//Create a Department Object
+
 		Department dept = new Department(deptName, deptId, numofstudents);
-		int id = deptId;
-		dept_Map.put(id, dept);
+		mapper.save(dept);
 		return dept;
 	}
 	
 	
 	// Getting One Department
 	public Department getDepartment(int deptId) {
-		
-		 //Simple HashKey Load
-		 Department dept1 = dept_Map.get(deptId);
+
+		 Department dept1 = mapper.load(Department.class, deptId);
 	     System.out.println("Item retrieved:");
 	     System.out.println(dept1.toString());
 		
@@ -51,25 +50,26 @@ static HashMap<Integer, Department> dept_Map = InMemoryDatabase.getDepartmentDB(
 	
 	// Deleting a department
 	public Department deleteDepartment(int deptId) {
-		Department del_dept = dept_Map.get(deptId);
-		dept_Map.remove(deptId);
+		Department del_dept = mapper.load(Department.class, deptId);
+		mapper.delete(del_dept);
 		return del_dept;
 	}
 	
 	// Updating Department Info
 	public Department updateDepartmentInformation(int deptId, Department dept) {	
-		Department olddeptObject = dept_Map.get(deptId);
+		Department olddeptObject = mapper.load(Department.class, deptId);
 		deptId = olddeptObject.getDeptId();
 		olddeptObject.setDeptName(dept.getDeptName());
-		olddeptObject.setDeptId(dept.getDeptId());
 		olddeptObject.setNumofstudents(dept.getNumofstudents());
 		return olddeptObject;
 	}
 	
 	public List<Department> getDepartmentByStudents(int numofstudents) {	
 		//Getting the list
-		ArrayList<Department> list = new ArrayList<>();
-		for (Department dept : dept_Map.values()) {
+		List<Department> list = new ArrayList<Department>();
+		
+		List<Department> dept_list = mapper.scan(Department.class, scanExpression);
+		for (Department dept : dept_list) {
 			if(dept.getNumofstudents()==numofstudents)
 			list.add(dept);
 		}

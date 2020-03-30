@@ -3,6 +3,12 @@ package com.csye6225.spring2020.courseservice.datamodel;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
+
+@DynamoDBTable(tableName="Lecture")
 @XmlRootElement
 public class Lecture {
 	private String course;
@@ -22,6 +28,8 @@ public class Lecture {
 		this.announcement=announcement;
 		this.lectureName=lectureName;
 	}
+	
+	@DynamoDBAttribute(attributeName="course")
 	@XmlElement(name="course")
 	public String getCourse() {
 		return course;
@@ -31,6 +39,7 @@ public class Lecture {
 		this.course = course;
 	}
 
+	@DynamoDBAttribute(attributeName="courseMaterial")
 	@XmlElement(name="courseMaterial")
 	public String getCourseMaterial() {
 		return courseMaterial;
@@ -40,6 +49,7 @@ public class Lecture {
 		this.courseMaterial=courseMaterial;
 	}
 	
+	@DynamoDBHashKey(attributeName="lectureNum")
 	@XmlElement(name="lectureNum")
 	public int getLectureNum(){
 		System.out.println(lectureNum);
@@ -50,6 +60,7 @@ public class Lecture {
 		this.lectureNum=lectureNum;
 	}
 	
+	@DynamoDBAttribute(attributeName="announcement")
 	@XmlElement(name="announcement")
 	public String getAnnouncement() {
 		return announcement;
@@ -59,6 +70,7 @@ public class Lecture {
 		this.announcement=announcement;
 	}
 	
+	@DynamoDBAttribute(attributeName="lectureName")
 	@XmlElement(name="lectureName")
 	public String getLectureName() {
 		return lectureName;
@@ -68,6 +80,7 @@ public class Lecture {
 		this.lectureName = lectureName;
 	}
 	
+	@DynamoDBIgnore
 	@Override
 	public String toString() { 
 		return "Material=" + getCourseMaterial() + ", LectureNum=" + getLectureNum() + ", Course=" + getCourse()

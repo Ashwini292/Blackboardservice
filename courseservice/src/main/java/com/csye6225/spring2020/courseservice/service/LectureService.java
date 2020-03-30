@@ -4,60 +4,56 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.csye6225.spring2020.courseservice.datamodel.DynamoDbConnector;
 import com.csye6225.spring2020.courseservice.datamodel.InMemoryDatabase;
 import com.csye6225.spring2020.courseservice.datamodel.Lecture;
 
 public class LectureService {
-static HashMap<String, Lecture> lect_Map = InMemoryDatabase.getLectureDB();
+	static DynamoDbConnector dynamodb;
+	DynamoDBMapper mapper;
+	DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
 	
 	public LectureService() {
+		dynamodb = new DynamoDbConnector();
+		dynamodb.init();
+		mapper = new DynamoDBMapper(dynamodb.getClient());
 	}
 	
-	// Getting a list of all lectures 
-	// GET "..webapi/lectures"
 	public List<Lecture> getAllLectures() {	
 		//Getting the list
-		ArrayList<Lecture> list = new ArrayList<>();
-		for (Lecture lect : lect_Map.values()) {
-			list.add(lect);
-		}
+		List<Lecture> list = mapper.scan(Lecture.class, scanExpression);
 		return list ;
 	}
 
 	// Adding a lecture
 	public Lecture addLecture(String course, String courseMaterial, int lectureNum, String announcement, String lectureName) {
-		// Next Id 
-		long nextAvailableId = lect_Map.size() + 1;
-		
-		//Create a Lecture Object
 		Lecture lect = new Lecture( course, courseMaterial, lectureNum, announcement, lectureName);
-
-		lect_Map.put(lectureName, lect);
+		mapper.save(lect);
 		return lect;
 	}
 	
 	
 	// Getting One lecture
 	public Lecture getLecture(String lect_name) {		
-		 //Simple HashKey Load
-		Lecture lect1 = lect_Map.get(lect_name);
+		Lecture lect1 = mapper.load(Lecture.class, lect_name);
 	    System.out.println(lect1.toString());		
 		return lect1;
 	}
 	
 	// Deleting a lecture
 	public Lecture deleteLecture(String lect_name) {
-		Lecture del_lect = lect_Map.get(lect_name);
-		lect_Map.remove(lect_name);
+		Lecture del_lect = mapper.load(Lecture.class, lect_name);
+		mapper.delete(lect_name);
 		return del_lect;
 	}
 	
 	// Updating Lecture Info
 	public Lecture updateLectureInformation(String lect_name, Lecture lect) {	
-		Lecture old_num = lect_Map.get(lect_name);
-		lect_name = old_num.getLectureNum()+old_num.getCourse();
+		Lecture old_num = mapper.load(Lecture.class, lect_name);
+		lect_name = old_num.getLectureNum() + old_num.getCourse();
 		old_num.setLectureNum(lect.getLectureNum());
-		old_num.setCourse(lect.getCourse());
 		old_num.setCourseMaterial(lect.getCourseMaterial());
 		old_num.setAnnouncement(lect.getAnnouncement());
 		return old_num;
@@ -66,13 +62,13 @@ static HashMap<String, Lecture> lect_Map = InMemoryDatabase.getLectureDB();
 	// Get lectures by course
 	public List<Lecture> getLecturesByCourse(String course) {	
 		//Getting the list
-		ArrayList<Lecture> list = new ArrayList<>();
-		for (Lecture lect : lect_Map.values()) {
+		List<Lecture> lect_list = mapper.scan(Lecture.class, scanExpression);
+		for (Lecture lect : lect_list) {
 			if (lect.getCourse().equals(course)) {
-				list.add(lect);
+				lect_list.add(lect);
 			}
 		}
-		return list ;
+		return lect_list ;
 	}
 	
 }

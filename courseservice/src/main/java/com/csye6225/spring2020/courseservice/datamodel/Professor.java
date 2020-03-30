@@ -5,7 +5,13 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIgnore;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+
 @XmlRootElement
+@DynamoDBTable(tableName="Professor")
 public class Professor {
 	private String id;
 	private String firstName;
@@ -29,6 +35,7 @@ public class Professor {
 		this.course = course;
 	}
 	
+	@DynamoDBAttribute(attributeName="firstName")
 	@XmlElement(name="firstName")
 	public String getFirstName() {
 		return firstName;
@@ -37,6 +44,7 @@ public class Professor {
 		this.firstName = firstName;
 	}
 	
+	@DynamoDBAttribute(attributeName="department")
 	@XmlElement(name="department")
 	public String getDepartment() {
 		return department;
@@ -45,6 +53,7 @@ public class Professor {
 		this.department = department;
 	}
 	
+	@DynamoDBHashKey(attributeName="professorId")
 	@XmlElement(name="professorId")
 	public String getProfessorId() {
 		return professorId;
@@ -53,6 +62,7 @@ public class Professor {
 		this.professorId = professorId;
 	}
 	
+	@DynamoDBAttribute(attributeName="joiningDate")
 	@XmlElement(name="joiningDate")
 	public String getJoiningDate() {
 		return joiningDate;
@@ -61,6 +71,7 @@ public class Professor {
 		this.joiningDate = joiningDate.toString();
 	}
 
+	@DynamoDBAttribute(attributeName="lastName")
 	@XmlElement(name="lastName")
 	public String getLastName() {
 		return lastName;
@@ -69,6 +80,7 @@ public class Professor {
 		this.lastName = lastName;
 	}
 	
+	@DynamoDBAttribute(attributeName="course")
 	@XmlElement(name="course")
 	public String getCourse() {
 		return course;
@@ -78,6 +90,7 @@ public class Professor {
 		this.course=course;
 	}
 	
+	@DynamoDBIgnore
 	@Override
 	public String toString() { 
 		return "ProfId=" + getProfessorId() + ", firstName=" + getFirstName()+"lastName="+getLastName()

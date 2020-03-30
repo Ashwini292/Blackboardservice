@@ -7,34 +7,39 @@ import java.util.List;
 
 import com.csye6225.spring2020.courseservice.datamodel.InMemoryDatabase;
 import com.csye6225.spring2020.courseservice.datamodel.Course;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.csye6225.spring2020.courseservice.datamodel.DynamoDbConnector;
+
 
 public class CourseService {
-static HashMap<String, Course> course_Map = InMemoryDatabase.getCourseDB();
+	static DynamoDbConnector dynamodb;
+	DynamoDBMapper mapper;
+	DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+	
 
-	public CourseService() {
-		
+	public CourseService() {	
+		dynamodb = new DynamoDbConnector();
+		dynamodb.init();
+		mapper = new DynamoDBMapper(dynamodb.getClient());		
 	}
 
 	public List<Course> getAllCourses(){
 		
+		List<Course> course_list = mapper.scan(Course.class, scanExpression);
 		ArrayList<Course> list = new ArrayList<>();
-		for(Course course: course_Map.values()) {
-			list.add(course);
-		}
-		return list;
+		return course_list;
 	}
 	
-	public Course addCourse(String courseName, String lecture, String department, String professor, String ta, int numofstudents) {
-		long nextAvailableId = course_Map.size() + 1;
-
-		Course course = new Course(courseName, lecture , professor, department, ta, numofstudents);
-		course_Map.put(courseName, course);
+	public Course addCourse(String courseName, String department, String lecture, String professor, String ta, int numofstudents) {
+		Course course = new Course(courseName, department, lecture , professor, ta, numofstudents);
+		mapper.save(course);
 		return course;
 	}
 	
 	public Course getCourse(String courseName) {
 		
-		Course course1 = course_Map.get(courseName);
+		Course course1 = mapper.load(Course.class, courseName);
 		System.out.println("Item retrieved: ");
 		System.out.println(course1.toString());
 		
@@ -43,15 +48,14 @@ static HashMap<String, Course> course_Map = InMemoryDatabase.getCourseDB();
 	}
 
 	public Course deleteCourse(String courseName) {
-		Course del_course = course_Map.get(courseName);
-		course_Map.remove(courseName);
+		Course del_course = mapper.load(Course.class, courseName);
+		mapper.delete(del_course);
 		return del_course;
 	}
 	
 	public Course updateCourseInformation(String courseName, Course course) {
-		Course old_course= course_Map.get(courseName);
+		Course old_course= mapper.load(Course.class, courseName);
 		courseName= old_course.getCourseName();
-		old_course.setCourseName(course.getCourseName());
 		old_course.setDepartment(course.getDepartment());
 		old_course.setLecture(course.getLecture());
 		old_course.setProfessor(course.getProfessor());
@@ -63,7 +67,10 @@ static HashMap<String, Course> course_Map = InMemoryDatabase.getCourseDB();
 	public List<Course> getCourseByDepartment(String department) {	
 		//Getting the list
 		ArrayList<Course> list = new ArrayList<>();
-		for (Course course : course_Map.values()) {
+		
+		List<Course> course_list = mapper.scan(Course.class, scanExpression);
+		
+		for (Course course : course_list) {
 			if (course.getDepartment().equals(department)) {
 				list.add(course);
 			}
