@@ -17,7 +17,7 @@ public class Student {
 	String firstName;
 	String lastName;
 	int studentId;
-	ArrayList<String> courses= new ArrayList<String>();
+	String courses;
 	String department;
 	String image;
 	
@@ -25,7 +25,7 @@ public class Student {
 		
 	}
 	
-	public Student(String firstName, String LastName, int studentId, ArrayList courses, String department, String image) {
+	public Student(String firstName, String LastName, int studentId, String courses, String department, String image) {
 		this.firstName=firstName;
 		this.lastName=LastName;
 		this.studentId=studentId;
@@ -66,11 +66,11 @@ public class Student {
 
 	@DynamoDBAttribute(attributeName="courses")
 	@XmlElement(name="courses")
-	public ArrayList getCourses() {
+	public String getCourses() {
 		return courses;
 	}
 
-	public void setCourses(ArrayList courses) {
+	public void setCourses(String courses) {
 		System.out.println(courses);
 		this.courses = courses;
 	}

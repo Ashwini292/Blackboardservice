@@ -1,13 +1,13 @@
 package com.csye6225.spring2020.courseservice.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.csye6225.spring2020.courseservice.datamodel.InMemoryDatabase;
 import com.csye6225.spring2020.courseservice.datamodel.Course;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.csye6225.spring2020.courseservice.datamodel.DynamoDbConnector;
 
@@ -49,7 +49,10 @@ public class CourseService {
 
 	public Course deleteCourse(String courseName) {
 		Course del_course = mapper.load(Course.class, courseName);
-		mapper.delete(del_course);
+		
+		if(del_course != null) {
+			mapper.delete(del_course);
+		}
 		return del_course;
 	}
 	
@@ -61,21 +64,20 @@ public class CourseService {
 		old_course.setProfessor(course.getProfessor());
 		old_course.setNumofstudents(course.getNumofstudents());
 		old_course.setTa(course.getTa());
+		mapper.save(old_course);
 		return course;			
 	}
 	
 	public List<Course> getCourseByDepartment(String department) {	
 		//Getting the list
-		ArrayList<Course> list = new ArrayList<>();
 		
+		Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
+        eav.put(":departmentName", new AttributeValue().withS(department));
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+        		.withFilterExpression("department= :departmentName").withExpressionAttributeValues(eav);
 		List<Course> course_list = mapper.scan(Course.class, scanExpression);
-		
-		for (Course course : course_list) {
-			if (course.getDepartment().equals(department)) {
-				list.add(course);
-			}
-		}
-		return list ;
+
+		return course_list ;
 	}
 	
 	

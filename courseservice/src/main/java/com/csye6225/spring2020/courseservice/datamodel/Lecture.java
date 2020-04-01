@@ -49,7 +49,7 @@ public class Lecture {
 		this.courseMaterial=courseMaterial;
 	}
 	
-	@DynamoDBHashKey(attributeName="lectureNum")
+	@DynamoDBAttribute(attributeName="lectureNum")
 	@XmlElement(name="lectureNum")
 	public int getLectureNum(){
 		System.out.println(lectureNum);
@@ -70,7 +70,7 @@ public class Lecture {
 		this.announcement=announcement;
 	}
 	
-	@DynamoDBAttribute(attributeName="lectureName")
+	@DynamoDBHashKey(attributeName="lectureName")
 	@XmlElement(name="lectureName")
 	public String getLectureName() {
 		return lectureName;

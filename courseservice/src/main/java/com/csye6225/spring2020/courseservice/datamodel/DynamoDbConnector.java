@@ -10,12 +10,18 @@ public class DynamoDbConnector {
  
 	 public static void init() {
 		if (dynamoDb == null) {
-		ProfileCredentialsProvider credentialsProvider = new ProfileCredentialsProvider("Ashwini");
+		/*ProfileCredentialsProvider credentialsProvider = new ProfileCredentialsProvider("Ashwini");
 		credentialsProvider.getCredentials();
 		
 		dynamoDb = AmazonDynamoDBClientBuilder
 					.standard()
 					.withCredentials(credentialsProvider)
+					.withRegion("us-west-2")
+					.build();		
+		System.out.println("I created the client");*/
+			
+			dynamoDb = AmazonDynamoDBClientBuilder
+					.standard()
 					.withRegion("us-west-2")
 					.build();		
 		System.out.println("I created the client");

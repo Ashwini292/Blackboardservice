@@ -45,7 +45,7 @@ DepartmentService deptService = new DepartmentService();
 	@DELETE
 	@Path("/{departmentId}")
 	@Produces(MediaType.APPLICATION_XML)
-	public Department deleteDepartment(@PathParam("departmentId") int deptId) {
+	public Department deleteDepartment(@PathParam("departmentId") String deptId) {
 		return deptService.deleteDepartment(deptId);
 	}
 	
@@ -64,7 +64,7 @@ DepartmentService deptService = new DepartmentService();
 	@Path("/{departmentId}")
 	@Produces(MediaType.APPLICATION_XML)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Department updateDepartment(@PathParam("departmentId") int deptId, 
+	public Department updateDepartment(@PathParam("departmentId") String deptId, 
 			Department dept) {
 		return deptService.updateDepartmentInformation(deptId, dept);
 	}

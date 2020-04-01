@@ -3,11 +3,11 @@ package com.csye6225.spring2020.courseservice.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.csye6225.spring2020.courseservice.datamodel.InMemoryDatabase;
-import com.csye6225.spring2020.courseservice.datamodel.Professor;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.csye6225.spring2020.courseservice.datamodel.Department;
 import com.csye6225.spring2020.courseservice.datamodel.DynamoDbConnector;
 
@@ -30,7 +30,7 @@ public class DepartmentService {
 	}
 
 	// Adding a department
-	public Department addDepartment(String deptName, int deptId, int numofstudents) {
+	public Department addDepartment(String deptName, String deptId, int numofstudents) {
 
 		Department dept = new Department(deptName, deptId, numofstudents);
 		mapper.save(dept);
@@ -49,32 +49,34 @@ public class DepartmentService {
 	}
 	
 	// Deleting a department
-	public Department deleteDepartment(int deptId) {
+	public Department deleteDepartment(String deptId) {
 		Department del_dept = mapper.load(Department.class, deptId);
-		mapper.delete(del_dept);
+		if (del_dept != null) {
+			mapper.delete(del_dept);
+		}
 		return del_dept;
 	}
 	
 	// Updating Department Info
-	public Department updateDepartmentInformation(int deptId, Department dept) {	
+	public Department updateDepartmentInformation(String deptId, Department dept) {	
 		Department olddeptObject = mapper.load(Department.class, deptId);
 		deptId = olddeptObject.getDeptId();
 		olddeptObject.setDeptName(dept.getDeptName());
 		olddeptObject.setNumofstudents(dept.getNumofstudents());
+		mapper.save(olddeptObject);
 		return olddeptObject;
 	}
 	
 	public List<Department> getDepartmentByStudents(int numofstudents) {	
 		//Getting the list
-		List<Department> list = new ArrayList<Department>();
 		
+		Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
+        eav.put(":numstudents", new AttributeValue().withN(Integer.toString(numofstudents)));
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+        		.withFilterExpression("numofstudents <= :numstudents").withExpressionAttributeValues(eav);
 		List<Department> dept_list = mapper.scan(Department.class, scanExpression);
-		for (Department dept : dept_list) {
-			if(dept.getNumofstudents()==numofstudents)
-			list.add(dept);
-		}
-		
-		return list;
+
+		return dept_list;
 			
 	}
 

@@ -3,12 +3,13 @@ package com.csye6225.spring2020.courseservice.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.csye6225.spring2020.courseservice.datamodel.InMemoryDatabase;
 import com.csye6225.spring2020.courseservice.datamodel.Student;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.csye6225.spring2020.courseservice.datamodel.DynamoDbConnector;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 public class StudentService {
 	static DynamoDbConnector dynamodb;
@@ -31,7 +32,7 @@ public class StudentService {
 	}
 
 	// Adding a student
-	public Student addStudent(String firstName, String LastName, int studentId, ArrayList courses, String department, String image) {
+	public Student addStudent(String firstName, String LastName, int studentId, String courses, String department, String image) {
 		
 		//Create a Student Object
 		Student stud = new Student(firstName, LastName, studentId, courses, department, image);
@@ -52,7 +53,9 @@ public class StudentService {
 	// Deleting a student
 	public Student deleteStudent(int studId) {
 		Student del_student = mapper.load(Student.class, studId);
-		mapper.delete(del_student);
+		if(del_student != null) {
+			mapper.delete(del_student);
+		}
 		return del_student;
 	}
 	
@@ -65,20 +68,21 @@ public class StudentService {
 		oldStudObject.setCourses(stud.getCourses());
 		oldStudObject.setDepartment(stud.getDepartment());
 		oldStudObject.setImage(stud.getImage());
+		mapper.save(oldStudObject);
 		return oldStudObject;
 	}
 	
 	// Get students in a department 
 	public List<Student> getStudentsByDepartment(String department) {	
 		//Getting the list
+		
+		Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
+        eav.put(":departmentName", new AttributeValue().withS(department));
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+        		.withFilterExpression("department= :departmentName").withExpressionAttributeValues(eav);
 		List<Student> stud_list = mapper.scan(Student.class, scanExpression);
-		ArrayList<Student> list = new ArrayList<>();
-		for (Student stud : stud_list) {
-			if (stud.getDepartment().equals(department)) {
-				list.add(stud);
-			}
-		}
-		return list ;
+		
+		return stud_list ;
 	}
 	
 

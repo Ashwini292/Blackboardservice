@@ -8,11 +8,9 @@ import java.util.Map;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBDeleteExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.csye6225.spring2020.courseservice.datamodel.DynamoDbConnector;
-import com.csye6225.spring2020.courseservice.datamodel.InMemoryDatabase;
 import com.csye6225.spring2020.courseservice.datamodel.Professor;
 
 public class ProfessorsService {
@@ -56,7 +54,9 @@ public class ProfessorsService {
 		
 		DynamoDBDeleteExpression deleteexpression = new DynamoDBDeleteExpression();
 		Professor deletedProfDetails = mapper.load(Professor.class, profId);
-		mapper.delete(deletedProfDetails);
+		if (deletedProfDetails != null) {
+			mapper.delete(deletedProfDetails);
+		}
 		return deletedProfDetails;
 	}
 	
@@ -67,22 +67,21 @@ public class ProfessorsService {
 		oldProfObject.setJoiningDate(prof.getJoiningDate());
 		oldProfObject.setCourse(prof.getCourse());
 		oldProfObject.setDepartment(prof.getDepartment());
+		mapper.save(oldProfObject);
 		return oldProfObject;
 	}
 	
 	// Get professors in a department 
 	public List<Professor> getProfessorsByDepartment(String department) {	
 		//Getting the list		
-		List<Professor> prof_list =  mapper.scan(Professor.class, scanExpression);       
-		ArrayList<Professor> list = new ArrayList<>();
-		for (Professor professor : prof_list) {
-			if (professor.getDepartment().equals(department)) {
-				list.add(professor);
-				System.out.println(list);
-			}
-		}
+		Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
+        eav.put(":departmentName", new AttributeValue().withS(department));
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+        		.withFilterExpression("department= :departmentName").withExpressionAttributeValues(eav);
+		List<Professor> prof_list = mapper.scan(Professor.class, scanExpression);
+		
 
-		return list ;
+		return prof_list ;
 	}	
 	
 	// Get professors for a year with a size limit

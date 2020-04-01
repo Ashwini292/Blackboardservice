@@ -12,14 +12,14 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 @XmlRootElement
 public class Department {
 	String deptName;
-	int deptId;
+	String deptId;
 	int numofstudents;
 	
 	public Department() {
 		
 	}
 	
-	public Department(String deptName, int deptId, int numofstudents ) {
+	public Department(String deptName, String deptId, int numofstudents ) {
 		this.deptName=deptName;
 		this.deptId=deptId;
 		this.numofstudents=numofstudents;
@@ -47,11 +47,11 @@ public class Department {
 	
 	@DynamoDBHashKey(attributeName="deptId")
 	@XmlElement(name="deptId")
-	public int getDeptId() {
+	public String getDeptId() {
 		return deptId;
 	}
 	
-	public void setDeptId(int deptId) {
+	public void setDeptId(String deptId) {
 		this.deptId=deptId;
 	}
 	
